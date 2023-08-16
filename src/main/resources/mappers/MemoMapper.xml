@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.smlee.studywebmemo.mappers.MemoMapper">
+    <insert id="insert"
+            useGeneratedKeys="true"
+            keyColumn="index"
+            keyProperty="index"
+            parameterType="net.smlee.studywebmemo.entities.MemoEntity">
+        INSERT INTO `study_web`.`memos` (`datetime`,`nickname`,`text`)
+        VALUE (#{datetime}, #{nickname}, #{text});
+    </insert>
+    <select id="selectAll"
+    resultType="net.smlee.studywebmemo.entities.MemoEntity">
+        SELECT `index`    AS `index`,
+               `datetime` AS `datetime`,
+               `nickname` AS `nickname`,
+               `text`     AS `text`
+        FROM `study_web`.`memos`
+        ORDER BY `index` DESC
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(0) AS `count`
+        FROM `study_web`.`memos`
+        <if test='searchCriterion.equals("content")'>
+            WHERE `text` LIKE CONCAT('%', #{searchQuery}, '%')
+        </if>
+        <if test='searchCriterion.equals("nickname")'>
+            WHERE BINARY `nickname` = #{searchQuery}
+        </if>
+    </select>
+
+    <select id="selectByPage"
+            resultType="net.smlee.studywebmemo.entities.MemoEntity">
+        SELECT `index`    AS `index`,
+               `datetime` AS `datetime`,
+               `nickname` AS `nickname`,
+               `text`     AS `text`
+        FROM `study_web`.`memos`
+        <if test='searchCriterion.equals("content")'>
+            WHERE `text` LIKE CONCAT('%', #{searchQuery}, '%')
+        </if>
+        <if test='searchCriterion.equals("nickname")'>
+            WHERE BINARY `nickname` = #{searchQuery}
+        </if>
+        ORDER BY `index` DESC
+        LIMIT #{pagingModel.pageCount} OFFSET #{pagingModel.offset}
+    </select>
+
+    <delete id="deleteByIndex">
+        DELETE FROM `study_web`.memos WHERE `index` = #{index} LIMIT 1
+    </delete>
+
+    <update id="updateByIndex">
+        UPDATE `study_web`.`memos` SET `text` = #{text} WHERE `index` = #{index} LIMIT 1
+    </update>
+</mapper>
